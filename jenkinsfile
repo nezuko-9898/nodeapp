@@ -2,10 +2,6 @@ pipeline {
 
     agent any
 
-    environment {
-        APP_DIR = "/home/ubuntu/nodeapp"
-    }
-
     stages {
 
         stage('Checkout') {
@@ -14,38 +10,17 @@ pipeline {
             }
         }
 
-        stage('Setup Node using NVM') {
-            steps {
-                sh '''
-                export NVM_DIR="$HOME/.nvm"
-                source $NVM_DIR/nvm.sh
-                nvm install --lts
-                nvm use --lts
-                node -v
-                npm -v
-                '''
-            }
-        }
-
         stage('Install Dependencies') {
             steps {
-                sh '''
-                export NVM_DIR="$HOME/.nvm"
-                source $NVM_DIR/nvm.sh
-                npm install
-                '''
+                sh 'npm install'
             }
         }
 
-        stage('Run Application') {
+        stage('Run App') {
             steps {
                 sh '''
-                export NVM_DIR="$HOME/.nvm"
-                source $NVM_DIR/nvm.sh
-
                 pm2 delete nodeapp || true
                 pm2 start app.js --name nodeapp
-                pm2 save
                 '''
             }
         }
