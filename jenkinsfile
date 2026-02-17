@@ -14,34 +14,33 @@ pipeline {
             }
         }
 
-        stage('Setup Node using NVM') {
+        stage('Setup Node') {
             steps {
                 sh '''
                 export NVM_DIR="$HOME/.nvm"
                 source $NVM_DIR/nvm.sh
-                nvm install --lts
                 nvm use --lts
-                node -v
-                npm -v
                 '''
             }
         }
 
-        stage('Install Dependencies') {
+        stage('Deploy to EC2 Folder') {
+            steps {
+                sh '''
+                cp -r * $APP_DIR
+                '''
+            }
+        }
+
+        stage('Install & Run App') {
             steps {
                 sh '''
                 export NVM_DIR="$HOME/.nvm"
                 source $NVM_DIR/nvm.sh
+
+                cd $APP_DIR
+
                 npm install
-                '''
-            }
-        }
-
-        stage('Run Application') {
-            steps {
-                sh '''
-                export NVM_DIR="$HOME/.nvm"
-                source $NVM_DIR/nvm.sh
 
                 pm2 delete nodeapp || true
                 pm2 start app.js --name nodeapp
